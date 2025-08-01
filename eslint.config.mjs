@@ -24,9 +24,9 @@ export default tseslint.config(
     },
   },
 
-  // Server (bbserver) 설정
+  // Server (Nest) 설정
   {
-    files: ["packages/bbserver/**/*.{ts,js}"],
+    files: ["packages/api-server/**/*.{ts,js}"],
     languageOptions: {
       parser: tseslint.parser,
       globals: {
@@ -35,8 +35,8 @@ export default tseslint.config(
       },
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: path.resolve(__dirname, "packages", "bbserver"),
-        project: [path.resolve(__dirname, "/tsconfig.json")],
+        project: [path.resolve(__dirname, "packages", "api-server")],
+        tsconfigRootDir: path.resolve(__dirname, "/tsconfig.json"),
       },
       sourceType: "commonjs",
     },
@@ -55,14 +55,14 @@ export default tseslint.config(
     },
   },
 
-  // Client (bbclient) 설정
+  // Client (React) 설정
   {
-    files: ["packages/bbclient/**/*.{ts,tsx,js,jsx}"],
+    files: ["packages/web-client/**/*.{ts,tsx,js,jsx}"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
-        project: [path.resolve(__dirname, "packages/bbclient/tsconfig.json")],
-        tsconfigRootDir: path.resolve(__dirname, "packages", "bbclient"),
+        project: [path.resolve(__dirname, "packages/web-client/tsconfig.json")],
+        tsconfigRootDir: path.resolve(__dirname, "packages", "web-client"),
       },
       globals: {
         ...globals.browser,
@@ -70,7 +70,7 @@ export default tseslint.config(
     },
     settings: {
       next: {
-        rootDir: path.resolve(__dirname, "packages", "bbclient"),
+        rootDir: path.resolve(__dirname, "packages", "web-client"),
       },
       prettier: {
         configPath: path.resolve(__dirname, "/prettier.config.mjs"),
