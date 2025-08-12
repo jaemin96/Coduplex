@@ -1,2 +1,2 @@
-# study
-developer study repo
+# Coduplex
+All projects, all learning, all in one place
