@@ -1,13 +1,17 @@
 {
-  "name": "study",
+  "name": "coduplex",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "packageManager": "pnpm@10.5.0",
-
+  "engines": {
+    "node": "^21"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint packages/** --ext .ts,.tsx,.js,.jsx",
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
     "lint:fix": "eslint packages/** --ext .ts,.tsx,.js,.jsx --fix",
     "format": "prettier --write \"packages/**/*.{js,jsx,ts,tsx,json,md}\""
   },
@@ -21,6 +25,7 @@
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "sass": "^1.87.0",
+    "turbo": "^2.5.6",
     "typescript-eslint": "^8.20.0"
   }
 }
