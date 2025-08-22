@@ -1,3 +1,5 @@
+@use "sass:map";
+
 /* ==============================
    Breakpoints
 ============================== */
@@ -132,17 +134,21 @@ $palette: (
    Helper Functions
 ============================== */
 @function bp($key) {
-  @return map-get($breakpoints, $key);
+  @return map.get($breakpoints, $key);
+}
+
+@function colors($cr) {
+  @return map.get($colors, $cr);
 }
 
 @function color($group, $shade: null) {
-  $palette-group: map-get($palette, $group);
+  $palette-group: map.get($palette, $group);
   @if $shade == null {
     @return $palette-group;
   }
-  @return map-get($palette-group, $shade);
+  @return map.get($palette-group, $shade);
 }
 
 @function font-size($size) {
-  @return map-get($font-sizes, $size);
+  @return map.get($font-sizes, $size);
 }
