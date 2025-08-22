@@ -1,69 +1,43 @@
-# React + TypeScript + Vite
+# UI Design System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+<br />
+<br />
+<div style="display: flex; justify-content: center; gap: 24px; flex-direction: row;">
+    <div style="display: flex; align-items: center; gap: 12px; flex-direction: column;">
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/react/react-original.svg" alt="React" height="60"/>
+        <a href="https://react.dev/">
+            <img src="https://img.shields.io/badge/react-^19.0-61DAFB?logo=react&logoColor=white" />
+        </a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; flex-direction: column;">
+        <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/typescript/typescript-original.svg" alt="TypeScript" height="60"/>
+        <a href="https://www.typescriptlang.org/">
+            <img src="https://img.shields.io/badge/typescript-^5.0-3178C6?logo=typescript&logoColor=white" />
+        </a>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; flex-direction: column;">
+        <img src="https://vitejs.dev/logo.svg" alt="Vite" height="60"/>
+        <a href="https://vitejs.dev/">
+            <img src="https://img.shields.io/badge/vite-^7.0-blueviolet?logo=vite&logoColor=white" />
+        </a>
+    </div>
+</div>
 
-Currently, two official plugins are available:
+<br/>
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 📖 개요
 
-## Expanding the ESLint configuration
+`React + TypeScript + Vite` 기반으로 구축된 UI 디자인시스템 레포로 <br />
+화면 구축에 자주 사용되는 UI를 구축해두고 필요한 곳에서 유연하게 사용 가능한 나만의 디자인 라이브러리이다
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+<br/>
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🧫 구축 방향성
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+-
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+<br />
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 🤝 협업
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+-
