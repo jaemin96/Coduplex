@@ -10,7 +10,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "dev:ui": "turbo run dev --filter ui",
+    "dev:ui": "turbo run dev --filter @my/ui",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "lint:fix": "eslint packages/** --ext .ts,.tsx,.js,.jsx --fix",
