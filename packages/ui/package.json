@@ -4,15 +4,23 @@
   "private": false,
   "type": "module",
   "main": "dist/index.cjs",
-  "module": "dist/index.esm.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/index.css"
+  },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "storybook dev -p 6006",
-    "build": "tsup src/index.ts --format cjs,esm --dts",
+    "build": "tsup src/index.ts --format cjs,esm --dts && pnpm run build:css",
     "build:storybook": "storybook dlx build",
+    "build:css": "node scripts/build-css.mjs",
     "lint": "eslint .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

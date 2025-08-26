@@ -7,6 +7,7 @@ export default defineConfig({
   dts: true,
   sourcemap: true,
   clean: true,
+  injectStyle: true,
   esbuildOptions(options) {
     options.loader = {
       ".scss": "text", // SCSS를 JS 문자열로 가져오기
