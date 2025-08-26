@@ -1,5 +1,4 @@
 import type { ButtonHTMLAttributes } from "react";
-import "@styles/scss/main.scss";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   primary?: boolean;
