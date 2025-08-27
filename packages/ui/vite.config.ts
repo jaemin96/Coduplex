@@ -18,13 +18,6 @@ export default () =>
           "@styles": path.resolve(__dirname, "src/styles"),
         },
       },
-      css: {
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@use "@styles/scss/main.scss" as *;`,
-          },
-        },
-      },
       // server: {
       //   port: Number(env.VITE_PORT) || 50000,
       // },
