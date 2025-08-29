@@ -1,0 +1,92 @@
+@use "@styles/scss/abstracts/variables" as *;
+
+/* Functions */
+@mixin Font($size: 1rem, $weight: 400) {
+  font-size: $size;
+  font-weight: $weight;
+}
+
+@mixin CustomScrollbar {
+  &::-webkit-scrollbar {
+    max-width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    width: 8px;
+    background: $scroll-thumb-bg-color; /* 스크롤바의 색상 */
+
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $scroll-track-bg-color; /*스크롤바 뒷 배경 색상*/
+  }
+}
+
+@mixin Flex($direction: row, $alignItems: normal, $justifyContent: normal) {
+  display: flex;
+  flex-direction: $direction;
+  align-items: $alignItems;
+  justify-content: $justifyContent;
+}
+
+// 사용 예시 - @include Grid($columns: "200px 1fr 2fr", $gap: 16px, $alignItems: center);
+@mixin Grid(
+  $columns: 12,
+  $gap: 16px,
+  $justifyContent: start,
+  $alignItems: stretch,
+  $autoFlow: row,
+  $templateRows: null
+) {
+  display: grid;
+
+  // columns를 숫자로 넘기면 1fr repeat로 변환
+  @if type-of($columns) == "number" {
+    grid-template-columns: repeat($columns, 1fr);
+  } @else {
+    grid-template-columns: $columns;
+  }
+
+  gap: $gap;
+  justify-content: $justifyContent;
+  align-items: $alignItems;
+  grid-auto-flow: $autoFlow;
+
+  @if $templateRows != null {
+    grid-template-rows: $templateRows;
+  }
+}
+
+/* device size - break point */
+@mixin media-min($key) {
+  @media screen and (min-width: map-get($breakpoints, $key)) {
+    @content;
+  }
+}
+
+@mixin media-between($min, $max) {
+  @media screen and (min-width: map-get($breakpoints, $min)) and (max-width: map-get($breakpoints, $max)) {
+    @content;
+  }
+}
+
+@mixin media($breakpoint) {
+  @if $breakpoint == desktop4k {
+    @include media-min(desktop-4k) {
+      @content;
+    }
+  } @else if $breakpoint == desktop {
+    @include media-between(desktop, desktop-4k) {
+      @content;
+    }
+  } @else if $breakpoint == tablet {
+    @include media-between(tablet-min, tablet-max) {
+      @content;
+    }
+  } @else if $breakpoint == mobile {
+    @include media-between(mobile-min, mobile-max) {
+      @content;
+    }
+  }
+}
