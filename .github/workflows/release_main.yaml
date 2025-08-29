@@ -28,6 +28,11 @@ jobs:
         with:
           version: ${{ env.PNPM_VERSION }}
 
+      - name: Install dependencies
+        run: |
+          pnpm --version   
+          pnpm install --frozen-lockfile
+
       - name: Install dependencies (filtered)
         run: pnpm install
 
