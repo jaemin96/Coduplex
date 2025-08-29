@@ -61,19 +61,3 @@ jobs:
           key: ${{ runner.os }}-node-modules-root-${{ hashFiles('pnpm-lock.yaml') }}
 
       - run: pnpm install --frozen-lockfile
-
-  release:
-    name: Release
-    needs: release-test
-    runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-    steps:
-      - uses: actions/checkout@v3
-      - run: |
-          VERSION=$(node -p "require('./package.json').version")
-          git tag -a "v$VERSION" -m "Release $VERSION"
-          git push origin --tags
-      - name: GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: "v$VERSION"
