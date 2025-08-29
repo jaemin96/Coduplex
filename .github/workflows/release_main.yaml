@@ -1,0 +1,34 @@
+name: Main Release Pipeline
+
+on:
+  pull_request:
+    branches: [main-test]
+
+jobs:
+  release-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint && pnpm build
+      - name: Final tests
+        run: pnpm test
+
+  release:
+    needs: release-test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          VERSION=$(node -p "require('./package.json').version")
+          git tag -a "v$VERSION" -m "Release $VERSION"
+          git push origin --tags
+      - name: GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "v$VERSION"

@@ -1,0 +1,56 @@
+{
+  "workbench.colorCustomizations": {
+    "titleBar.activeBackground": "#2D1E40",
+    "titleBar.inactiveBackground": "#2D1E40"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "todohighlight.keywords": [
+    {
+      "text": "DEBUG:",
+      "color": "#00BFFF",
+      "backgroundColor": "#e0f7ff"
+    },
+    {
+      "text": "REVIEW:",
+      "color": "#8E44AD",
+      "backgroundColor": "#f2e5ff"
+    },
+    {
+      "text": "NOTE:",
+      "color": "#3B82F6",
+      "backgroundColor": "#E0F2FE",
+      "overviewRulerColor": "#60A5FA"
+    },
+    {
+      "text": "TODO:",
+      "color": "#10B981",
+      "border": "1px solid #10B981",
+      "borderRadius": "3px",
+      "backgroundColor": "#D1FAE5"
+    }
+  ],
+  "todohighlight.include": [
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.html",
+    "**/*.css",
+    "**/*.scss"
+  ],
+  "todohighlight.exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.vscode/**",
+    "**/.github/**",
+    "**/_output/**",
+    "**/*.min.*",
+    "**/*.map",
+    "**/.next/**"
+  ],
+  "todohighlight.maxFilesForSearch": 5120,
+  "todohighlight.toggleURI": false
+}
