@@ -43,14 +43,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint && pnpm build
-      - name: Final tests
-        run: pnpm test
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
 
   release:
     name: Release
