@@ -8,6 +8,8 @@ env:
   NODE_ENV: production
   NODE_VERSION: 22
   PNPM_VERSION: 10
+  USER_NAME: jaemin96
+  USER_EMAIL: lemon__96@naver.com
 
 jobs:
   release:
@@ -38,6 +40,11 @@ jobs:
 
       - name: Build
         run: pnpm build
+
+      - name: Configure Git user
+        run: |
+          git config user.name "${{ env.USER_NAME }}"
+          git config user.email "${{ env.USER_EMAIL }}"
 
       - name: Tag Release
         run: |
