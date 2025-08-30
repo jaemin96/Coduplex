@@ -47,9 +47,12 @@ jobs:
           git config user.email "${{ env.USER_EMAIL }}"
 
       - name: Tag Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
           git tag -a "v$VERSION" -m "Release $VERSION"
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/jaemin96/Coduplex.git
           git push origin --tags
 
       - name: GitHub Release
