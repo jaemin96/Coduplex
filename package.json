@@ -1,6 +1,6 @@
 {
   "name": "coduplex",
-  "version": "1.0.3",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "packageManager": "pnpm@10.5.0",
