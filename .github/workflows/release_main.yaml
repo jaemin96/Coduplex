@@ -49,15 +49,15 @@ jobs:
         run: |
           git config user.name "${{ env.USER_NAME }}"
           git config user.email "${{ env.USER_EMAIL }}"
-
       - name: Tag Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION=$(node -p "require('./package.json').version")
+          git config user.name "${{ env.USER_NAME }}"
+          git config user.email "${{ env.USER_EMAIL }}"
           git tag -a "v$VERSION" -m "Release $VERSION"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/jaemin96/Coduplex.git
           git push origin --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: GitHub Release
         uses: ncipollo/release-action@v1
