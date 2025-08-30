@@ -67,6 +67,9 @@ jobs:
           git tag -a "v$VERSION" -m "Release $VERSION"
           git push git@github.com:jaemin96/Coduplex.git --tags
 
+      - name: Debug VERSION
+        run: echo "VERSION=${{ env.VERSION }}"
+
       - name: GitHub Release
         uses: ncipollo/release-action@v1
         with:
