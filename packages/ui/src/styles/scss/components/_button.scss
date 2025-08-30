@@ -1,0 +1,34 @@
+@use "@styles/scss/abstracts" as *;
+
+/* ====== Default btn ======= */
+.button {
+  border-radius: 0.875rem;
+  padding: 0.4rem 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+
+  &--primary {
+    color: colors(white);
+    background-color: color(info, 400);
+    :hover {
+      background-color: color(info, 500);
+    }
+  }
+  &--secondary {
+    color: color(info, 400);
+    background-color: colors(white);
+    border: 1px solid color(info, 400) !important;
+    :hover {
+      color: color(info, 200);
+      border: 1px solid color(info, 200) !important;
+    }
+  }
+
+  &--small {
+    font-size: font-size(s);
+  }
+  &--large {
+    font-size: font-size(lg);
+  }
+}
