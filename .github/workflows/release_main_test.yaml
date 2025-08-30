@@ -2,7 +2,7 @@ name: test main release pipeline
 
 on:
   pull_request:
-    branches: [main-test]
+    branches: [main]
 
 env:
   NODE_ENV: production

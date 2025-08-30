@@ -2,7 +2,7 @@ name: Main Release Flow
 
 on:
   push:
-    branches: [main-test]
+    branches: [main]
 
 env:
   NODE_ENV: production
