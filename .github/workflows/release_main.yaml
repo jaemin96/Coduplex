@@ -57,7 +57,6 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           git tag -a "v$VERSION" -m "Release $VERSION"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/jaemin96/Coduplex.git --tags
-          # git push origin --tags
 
       - name: GitHub Release
         uses: ncipollo/release-action@v1
