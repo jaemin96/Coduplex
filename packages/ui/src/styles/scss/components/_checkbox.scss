@@ -1,0 +1,11 @@
+@use "@styles/scss/abstracts" as *;
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.4rem;
+  input {
+    margin-right: 0.4em;
+  }
+}
