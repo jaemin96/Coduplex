@@ -1,4 +1,4 @@
-@use "@styles/scss/abstracts/variables" as *;
+@use "@/scss/abstracts/variables" as *;
 
 /* Functions */
 @mixin Font($size: 1rem, $weight: 400) {
