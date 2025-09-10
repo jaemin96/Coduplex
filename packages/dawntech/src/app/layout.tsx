@@ -2,6 +2,7 @@ import { DawntechFooter } from "@/components/footer";
 import { DawntechHeader } from "@/components/header";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import "@/scss/main.scss";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
