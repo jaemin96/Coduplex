@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 function makePackageConfig(pkgName, tsconfigFile = "tsconfig.json") {
   return {
     files: [`packages/${pkgName}/**/*.{ts,tsx,js,jsx}`],
+    ignores: ["packages/${pkgName}/.next/**"],
     languageOptions: {
       parser: tseslint.parser,
       parserOptions: {
@@ -20,9 +21,9 @@ function makePackageConfig(pkgName, tsconfigFile = "tsconfig.json") {
 
 export default tseslint.config(
   {
-    ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts"],
+    ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts", "**/.next/**"],
   },
   makePackageConfig("web-client", "tsconfig.eslint.json"),
   makePackageConfig("ui"),
-  makePackageConfig("dawntech")
+  makePackageConfig("dawntech", "tsconfig.eslint.json")
 );
