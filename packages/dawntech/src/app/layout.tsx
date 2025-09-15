@@ -28,7 +28,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         {/* Header */}
-        <header>
+        <header id="header">
           <DawntechHeader />
         </header>
 
