@@ -16,14 +16,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+
       - uses: pnpm/action-setup@v2
         with:
-          version: 10
+          version: ${{ env.PNPM_VERSION }}
+
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+
+      # ✅ 항상 ui 먼저 빌드
+      - name: Build UI design system
+        run: pnpm build
+        working-directory: packages/ui
+
+      # ✅ 그다음에 현재 패키지 lint/build 실행
+      - name: Lint ${{ inputs.package }}
+        run: pnpm lint
         working-directory: packages/${{ inputs.package }}
-      - run: pnpm build
+
+      - name: Build ${{ inputs.package }}
+        run: pnpm build
         working-directory: packages/${{ inputs.package }}

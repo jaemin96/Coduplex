@@ -36,13 +36,19 @@ jobs:
       - name: Install dependencies (filtered)
         run: pnpm install
 
+  ui-ci:
+    uses: ./.github/workflows/_package-ci.yml
+    with:
+      package: ui
+
   package-ci:
+    needs: ui-ci
     uses: ./.github/workflows/_package-ci.yml
     with:
       package: ${{ matrix.pkg }}
     strategy:
       matrix:
-        pkg: [ui, web-client, dawntech]
+        pkg: [web-client, dawntech]
 
   release-test:
     name: Test release
