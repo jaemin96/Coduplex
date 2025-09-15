@@ -1,0 +1,129 @@
+@use "@/scss/abstracts" as *;
+
+.footer {
+  background-color: color(dt, black);
+  width: 100%;
+  height: 350px;
+  position: relative;
+  transform: translateY(0%);
+
+  &-container {
+    color: color(dt, white);
+    padding: 2rem;
+
+    .company {
+      margin-bottom: 1rem;
+
+      h1 {
+        font-size: font-size(lg);
+        font-weight: 700;
+      }
+    }
+
+    .rep {
+      margin-bottom: 1rem;
+
+      &-title {
+        font-size: font-size(s);
+        font-weight: 700;
+        margin-right: 0.5rem;
+      }
+
+      &-content {
+        font-size: font-size(s);
+        font-weight: 300;
+      }
+    }
+
+    .contact {
+      margin-bottom: 2rem;
+
+      &-call {
+        display: flex;
+        gap: 1rem;
+      }
+
+      &-title {
+        font-size: font-size(s);
+        font-weight: 700;
+        margin-right: 0.5rem;
+      }
+
+      &-content {
+        font-size: font-size(s);
+        font-weight: 300;
+      }
+    }
+
+    .service {
+      &-items {
+        display: flex;
+        gap: 1.5rem;
+        list-style: none;
+        font-size: font-size(s);
+        font-weight: 700;
+      }
+    }
+
+    .boundary {
+      width: 100%;
+      height: 0.1rem;
+      background-color: color(dt, gray);
+      margin: 0.5rem 0;
+    }
+
+    .copyright {
+      color: color(dt, gray);
+      font-size: font-size(s);
+    }
+  }
+}
+
+/* === Mobile Device === */
+@media screen and (max-width: 768px) {
+  .footer {
+    height: 335px;
+
+    &-container {
+      .company h1 {
+        font-size: font-size(m);
+        font-weight: 700;
+      }
+
+      .rep {
+        &-title {
+          font-size: font-size(s);
+          font-weight: 700;
+        }
+        &-content {
+          font-size: font-size(s);
+          font-weight: 300;
+        }
+      }
+
+      .contact {
+        &-call {
+          gap: 1rem;
+        }
+        &-title {
+          font-size: font-size(s);
+          font-weight: 700;
+        }
+        &-content {
+          font-size: font-size(s);
+          font-weight: 300;
+        }
+      }
+
+      .service-items {
+        gap: 2rem;
+        font-size: font-size(s);
+        font-weight: 700;
+      }
+
+      .copyright {
+        font-size: font-size(s);
+      }
+    }
+  }
+}
