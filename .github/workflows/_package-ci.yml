@@ -1,0 +1,29 @@
+name: Package CI
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+
+env:
+  NODE_ENV: production
+  NODE_VERSION: 22
+  PNPM_VERSION: 10
+
+jobs:
+  lint-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+        working-directory: packages/${{ inputs.package }}
+      - run: pnpm build
+        working-directory: packages/${{ inputs.package }}
