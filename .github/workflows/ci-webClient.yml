@@ -15,6 +15,7 @@ on:
       - feature/**
       - fix/**
       - hotfix/**
+      - dev-test
 
 jobs:
   run-ci:
