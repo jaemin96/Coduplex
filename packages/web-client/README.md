@@ -61,4 +61,4 @@
 - `Turborepo` 기반 모노레포 구조에 대한 이해도 향상과 구조 표준화 학습
 - `ESLint`, `Prettier` 고도화 및 협업 컨벤션 학습 및 구축 경험
 - (시간이 된다면😂) `Docker` 배포 프로세스에 대한 학습
-  aaaaaaaaaaaa
+  aaaaaaaaaaaassssssssssssssss
