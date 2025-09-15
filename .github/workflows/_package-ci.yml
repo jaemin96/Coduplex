@@ -16,14 +16,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: ${{ env.NODE_VERSION }}
+
       - uses: pnpm/action-setup@v2
         with:
-          version: 10
+          version: ${{ env.PNPM_VERSION }}
+
       - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
+
+      # 모든 패키지에서 디자인 시스템 dist 파일을 사용하기 떄문에 무조건 선행되어야함.
+      - name: Build UI design system
+        run: pnpm build
+        working-directory: packages/ui
+
+      # 주입 패키지 Run lint
+      - name: Lint ${{ inputs.package }}
+        run: pnpm lint
         working-directory: packages/${{ inputs.package }}
-      - run: pnpm build
+
+      # 주입 패키지 Run build
+      - name: Build ${{ inputs.package }}
+        run: pnpm build
         working-directory: packages/${{ inputs.package }}

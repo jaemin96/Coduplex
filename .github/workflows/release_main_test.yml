@@ -36,13 +36,22 @@ jobs:
       - name: Install dependencies (filtered)
         run: pnpm install
 
+  # UI 디자인시스템 패키지는 항상 선행 build 되어야함.
+  ui-ci:
+    uses: ./.github/workflows/_package-ci.yml
+    with:
+      package: ui
+
+  # ui-ci flow pass - ui 디자인 시스템 dist가 존재할 경우 다른 패키지들 lint & build 수행
+  # matrix가 병렬처리가 기본이기 때문에 ui package dist가 필요한 경우 다 에러나기 때문에 선행 필요
   package-ci:
+    needs: ui-ci
     uses: ./.github/workflows/_package-ci.yml
     with:
       package: ${{ matrix.pkg }}
     strategy:
       matrix:
-        pkg: [ui, web-client, dawntech]
+        pkg: [web-client, dawntech]
 
   release-test:
     name: Test release
