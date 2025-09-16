@@ -2,6 +2,8 @@
 
 [![Main Release Flow](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
 
+![My Banner](./assets/images/coduplex_banner1.jpg)
+
 All projects, all learning, all in one place
 
 ---
@@ -17,3 +19,17 @@ All projects, all learning, all in one place
 ![UI Design System](https://img.shields.io/badge/UI%20Design%20System-111111?style=for-the-badge&logo=storybook&logoColor=FF4785)
 ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
+
+## Packages
+
+<div style="display: flex; flex-direction: column; gap: 8px;">
+  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml">
+    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg" alt="Package - UI Design System">
+  </a>
+  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml">
+    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml/badge.svg" alt="Package - Web Client">
+  </a>
+  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml">
+    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg" alt="Package - Dawntech">
+  </a>
+</div>
