@@ -1,6 +1,6 @@
 # Coduplex
 
-[![web-client CI](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
+[![Main Release Flow](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg/?)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
 
 All projects, all learning, all in one place
 
@@ -17,11 +17,3 @@ All projects, all learning, all in one place
 ![UI Design System](https://img.shields.io/badge/UI%20Design%20System-111111?style=for-the-badge&logo=storybook&logoColor=FF4785)
 ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
-
-## Packages
-
-- packages/ui [![UI design system CI](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml)
-
-- packages/dawntech [![Dawntech CI](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml)
-
-- packages/web-client [![web-client CI](https://github.com/jaemin96/Coduplex/actions/workflows/.github/workflows/ci-webClient.yml/badge.svg/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/.github/workflows/ci-webClient.yml)
