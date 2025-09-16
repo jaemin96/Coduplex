@@ -1,6 +1,6 @@
 # Coduplex
 
-[![Main Release Flow](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg/?)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
+[![Main Release Flow](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
 
 All projects, all learning, all in one place
 
