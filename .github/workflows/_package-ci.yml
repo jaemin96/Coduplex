@@ -1,0 +1,43 @@
+name: Package CI
+on:
+  workflow_call:
+    inputs:
+      package:
+        required: true
+        type: string
+
+env:
+  NODE_ENV: production
+  NODE_VERSION: 22
+  PNPM_VERSION: 10
+
+jobs:
+  lint-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - run: pnpm install --frozen-lockfile
+
+      # 모든 패키지에서 디자인 시스템 dist 파일을 사용하기 떄문에 무조건 선행되어야함.
+      - name: Build UI design system
+        run: pnpm build
+        working-directory: packages/ui
+
+      # 주입 패키지 Run lint
+      - name: Lint ${{ inputs.package }}
+        run: pnpm lint
+        working-directory: packages/${{ inputs.package }}
+
+      # 주입 패키지 Run build
+      - name: Build ${{ inputs.package }}
+        run: pnpm build
+        working-directory: packages/${{ inputs.package }}
