@@ -2,19 +2,11 @@ name: Dawntech CI
 
 on:
   pull_request:
-    paths:
-      - "packages/dawntech/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - dev
+    paths: ["packages/dawntech/**", "pnpm-lock.yaml"]
+    branches: ["dev"]
   push:
-    paths:
-      - "packages/dawntech/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - feature/**
-      - fix/**
-      - hotfix/**
+    paths: ["packages/dawntech/**", "pnpm-lock.yaml"]
+    branches: ["feature/**", "fix/**", "hotfix/**"]
 
 jobs:
   run-ci:

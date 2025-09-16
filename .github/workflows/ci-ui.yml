@@ -2,19 +2,11 @@ name: UI design system CI
 
 on:
   pull_request:
-    paths:
-      - "packages/ui/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - dev
+    paths: ["packages/ui/**", "pnpm-lock.yaml"]
+    branches: ["dev"]
   push:
-    paths:
-      - "packages/ui/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - feature/**
-      - fix/**
-      - hotfix/**
+    paths: ["packages/ui/**", "pnpm-lock.yaml"]
+    branches: ["feature/**", "fix/**", "hotfix/**"]
 
 jobs:
   run-ci:

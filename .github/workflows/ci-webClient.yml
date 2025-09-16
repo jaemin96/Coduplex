@@ -2,19 +2,11 @@ name: Web client CI
 
 on:
   pull_request:
-    paths:
-      - "packages/web-client/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - dev
+    paths: ["packages/web-client/**", "pnpm-lock.yaml"]
+    branches: ["dev"]
   push:
-    paths:
-      - "packages/web-client/**"
-      - "pnpm-lock.yaml"
-    branches:
-      - feature/**
-      - fix/**
-      - hotfix/**
+    paths: ["packages/web-client/**", "pnpm-lock.yaml"]
+    branches: ["feature/**", "fix/**", "hotfix/**"]
 
 jobs:
   run-ci:
