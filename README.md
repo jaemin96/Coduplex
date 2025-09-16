@@ -22,14 +22,10 @@ All projects, all learning, all in one place
 
 ## Packages
 
-<div style="display: flex; flex-direction: column; gap: 8px;">
-  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml">
-    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg" alt="Package - UI Design System">
-  </a>
-  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml">
-    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml/badge.svg" alt="Package - Web Client">
-  </a>
-  <a href="https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml">
-    <img src="https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg" alt="Package - Dawntech">
-  </a>
-</div>
+[![Package - UI Design System](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml)
+<br/>
+
+[![Package - Web Client](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml)
+<br/>
+
+[![Package - Dawntech](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml)
