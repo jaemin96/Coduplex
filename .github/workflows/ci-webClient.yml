@@ -1,15 +1,15 @@
-name: UI design system CI
+name: Web client CI
 
 on:
   pull_request:
     paths:
-      - "packages/ui/**"
+      - "packages/web-client/**"
       - "pnpm-lock.yaml"
     branches:
       - dev
   push:
     paths:
-      - "packages/ui/**"
+      - "packages/web-client/**"
       - "pnpm-lock.yaml"
     branches:
       - feature/**
@@ -20,4 +20,4 @@ jobs:
   run-ci:
     uses: ./.github/workflows/_package-ci.yml
     with:
-      package: ui
+      package: web-client
