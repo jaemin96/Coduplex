@@ -1,5 +1,7 @@
 # web-client
 
+[![Package - Web Client](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml)
+
 <br />
 
 <table>
