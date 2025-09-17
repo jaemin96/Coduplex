@@ -1,5 +1,7 @@
 # UI Design System
 
+[![Package - UI Design System](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml)
+
 <br />
 
 <table>
