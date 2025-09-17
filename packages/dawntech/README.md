@@ -1,5 +1,7 @@
 # 도운테크
 
+[![Package - Dawntech](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml)
+
 <br />
 
 <table>
