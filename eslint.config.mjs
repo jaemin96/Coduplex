@@ -1,4 +1,4 @@
-import tseslint from "typescript-eslint";
+import { defineConfig } from "eslint/config";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -19,7 +19,7 @@ function makePackageConfig(pkgName, tsconfigFile = "tsconfig.json") {
   };
 }
 
-export default tseslint.config(
+export default defineConfig(
   {
     ignores: ["**/dist/**", "**/node_modules/**", "**/*.d.ts", "**/.next/**"],
   },
