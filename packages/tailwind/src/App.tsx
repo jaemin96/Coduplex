@@ -1,7 +1,7 @@
 function App() {
   return (
     <>
-      <div>hello Tailwind + Vite</div>
+      <div className="text-3xl font-bold underline">hello Tailwind + Vite</div>
     </>
   );
 }
