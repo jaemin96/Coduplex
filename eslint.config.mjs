@@ -25,5 +25,6 @@ export default tseslint.config(
   },
   makePackageConfig("web-client", "tsconfig.eslint.json"),
   makePackageConfig("ui"),
+  makePackageConfig("tailwind", "tsconfig.eslint.json"),
   makePackageConfig("dawntech", "tsconfig.eslint.json")
 );
