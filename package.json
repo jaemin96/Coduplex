@@ -11,7 +11,7 @@
     "build": "turbo run build",
     "dev": "pnpm -r --parallel run dev",
     "dev:ui": "turbo run dev --filter @my/ui",
-    "dev:web": "turbo run dev --filter=./packages/web-client --filter=./packages/web-server",
+    "dev:web": "turbo run dev --filter=./packages/web-playground --filter=./packages/web-server",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "lint:fix": "eslint packages/** --ext .ts,.tsx,.js,.jsx --fix",
