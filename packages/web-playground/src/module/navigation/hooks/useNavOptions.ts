@@ -1,4 +1,4 @@
-import { Home, FileText } from 'lucide-react';
+import { Home, FileText, ClipboardList } from 'lucide-react';
 
 type NavItem = {
   title: string;
@@ -24,7 +24,11 @@ export const useNavOptions = () => {
         icon: Home,
         url: '/',
       },
-
+      {
+        title: 'Board',
+        icon: ClipboardList,
+        url: '/board',
+      },
       {
         title: 'Menu (template)',
         icon: FileText,

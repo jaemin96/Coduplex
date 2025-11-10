@@ -5,6 +5,7 @@ import ProtectedRoute from './ProtectedRoute';
 import { BaseLayout } from '@/layout';
 import { SearchPage } from '@module/search/page';
 import { HomePage } from '@module/home/page';
+import { BoardPage } from '@module/board/page';
 
 const Router: React.FC = () => {
   return (
@@ -17,6 +18,7 @@ const Router: React.FC = () => {
           <Route element={<BaseLayout />}>
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
+            <Route path="board" element={<BoardPage />} />
           </Route>
 
           {/* Viewer */}

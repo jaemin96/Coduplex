@@ -10,7 +10,7 @@ export const BaseLayout = () => {
       <SidebarProvider>
         <Header />
         <AppSidebar />
-        <main className="w-full mt-16 pt-2 overflow-y-auto max-h-[calc(100svh-64px)]">
+        <main className="w-full mt-16 pt-2 pl-3 overflow-y-auto max-h-[calc(100svh-64px)]">
           <Outlet />
         </main>
         <Toaster position="top-right" />
