@@ -6,3 +6,5 @@ export { TableFooter } from './TableFooter';
 export { TableHead } from './TableHead';
 export { TableHeader } from './TableHeader';
 export { TableRow } from './TableRow';
+
+export * from './components';
