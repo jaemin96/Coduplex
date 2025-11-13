@@ -20,16 +20,14 @@ const Header: React.FC<HeaderProps> = ({ children }) => {
         </div>
 
         {/* 데스크톱 검색 */}
-        {false && (
-          <div className="text-white hidden md:block">
-            <SearchBar />
-          </div>
-        )}
+        <div className="text-white hidden">
+          <SearchBar />
+        </div>
 
         {/* MENU */}
         <div className="flex gap-2">
           {/* 모바일 검색 */}
-          <div className="text-white block md:hidden">
+          <div className="text-white hidden">
             <SearchBar />
           </div>
           {children}
