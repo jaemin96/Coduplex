@@ -7,7 +7,7 @@ export const boardService = {
   },
 
   async createBoard() {
-    const { data } = await axiosInstance.post('/board');
+    const { data } = await axiosInstance.post('/board', { title: 'ss', content: 'dwqdq' });
     return data;
   },
 };
