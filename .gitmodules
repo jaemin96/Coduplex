@@ -1,0 +1,3 @@
+[submodule "packages/weaw-design"]
+	path = packages/weaw-design
+	url = git@github-personal:jaemin96/weaw-design.git
