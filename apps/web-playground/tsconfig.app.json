@@ -29,7 +29,8 @@
       "@api/*": ["src/api/*"],
       "@shared/*": ["src/shared/*"],
       "@module/*": ["src/module/*"],
-      "@styles/*": ["src/styles/*"]
+      "@styles/*": ["src/styles/*"],
+      "@weaw/design": ["../../packages/weaw-design/src"]
     }
   },
   "types": ["node"],
