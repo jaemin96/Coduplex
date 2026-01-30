@@ -35,3 +35,50 @@ jobs:
       - name: Build web-playground
         run: pnpm build
         working-directory: apps/web-playground
+
+      # [Discord Notification]
+      - name: Send Discord Notification
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
+            STATUS="❌ Failed"
+            COLOR=15158332
+          else
+            STATUS="✅ Success"
+            COLOR=3066993
+          fi
+
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1 | cut -c 1-100)
+
+          curl -X POST $DISCORD_WEBHOOK \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"author\": {
+                  \"name\": \"${{ github.actor }}\",
+                  \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
+                },
+                \"title\": \"$STATUS Web Playground CI\",
+                \"description\": \"**Branch:** \\\`${{ github.ref_name }}\\\`\n**Commit:** $COMMIT_MSG\",
+                \"color\": $COLOR,
+                \"fields\": [
+                  {
+                    \"name\": \"Lint\",
+                    \"value\": \"${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Build\",
+                    \"value\": \"${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"inline\": true
+                  }
+                ],
+                \"footer\": {
+                  \"text\": \"Turborepo • Web Playground\"
+                },
+                \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
+              }]
+            }"
