@@ -70,54 +70,54 @@ jobs:
           echo "$STATS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      # [간단한 diff 내용 추출]
-      - name: Get code diff summary
-        id: diff_summary
+      # [코드 변경 통계]
+      - name: Get code change stats
+        id: code_stats
         run: |
-          # 변경된 파일 목록 가져오기
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground)
+          # 전체 통계
+          STATS=$(git diff --stat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | tail -1)
 
-          # 임시 파일에 diff 요약 작성
-          SUMMARY_FILE=$(mktemp)
+          # 추가/삭제 라인 수 추출
+          ADDITIONS=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | awk '{sum+=$1} END {print sum}')
+          DELETIONS=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | awk '{sum+=$2} END {print sum}')
 
-          COUNT=0
+          echo "stats=$STATS" >> $GITHUB_OUTPUT
+          echo "additions=$ADDITIONS" >> $GITHUB_OUTPUT
+          echo "deletions=$DELETIONS" >> $GITHUB_OUTPUT
+
+      # [변경된 주요 파일의 간단한 설명]
+      - name: Generate change description
+        id: change_desc
+        run: |
+          # 변경된 파일 목록 (최대 5개)
+          FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | head -5)
+
+          DESC=""
           while IFS= read -r file; do
-            if [ $COUNT -ge 2 ]; then
-              break
-            fi
-
             if [ -n "$file" ]; then
-              # 파일명 추가
-              echo "" >> "$SUMMARY_FILE"
-              echo "**${file}**" >> "$SUMMARY_FILE"
-              echo '```diff' >> "$SUMMARY_FILE"
+              # 파일별 변경 통계
+              FILE_STAT=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "$file")
+              ADDED=$(echo "$FILE_STAT" | awk '{print $1}')
+              REMOVED=$(echo "$FILE_STAT" | awk '{print $2}')
 
-              # 해당 파일의 diff (15줄 제한)
-              git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "$file" | head -15 >> "$SUMMARY_FILE"
+              # 파일명만 (경로 제거)
+              FILENAME=$(basename "$file")
 
-              echo '```' >> "$SUMMARY_FILE"
-
-              COUNT=$((COUNT + 1))
+              DESC="${DESC}• \`${FILENAME}\` (+${ADDED} -${REMOVED})"$'\n'
             fi
-          done <<< "$CHANGED_FILES"
+          done <<< "$FILES"
 
-          # 파일 크기 체크 (Discord embed field는 1024자 제한)
-          FILE_SIZE=$(wc -c < "$SUMMARY_FILE")
-          if [ $FILE_SIZE -gt 900 ]; then
-            # 900자로 자르고 메시지 추가
-            head -c 850 "$SUMMARY_FILE" > "${SUMMARY_FILE}.tmp"
-            echo '```' >> "${SUMMARY_FILE}.tmp"
-            echo "" >> "${SUMMARY_FILE}.tmp"
-            echo "*Diff too long, check PR for full changes*" >> "${SUMMARY_FILE}.tmp"
-            mv "${SUMMARY_FILE}.tmp" "$SUMMARY_FILE"
+          # 총 파일 수 체크
+          TOTAL_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | wc -l)
+          if [ $TOTAL_FILES -gt 5 ]; then
+            DESC="${DESC}• ... and $((TOTAL_FILES - 5)) more files"
           fi
 
-          # GITHUB_OUTPUT에 안전하게 저장
-          echo "summary<<EOF" >> $GITHUB_OUTPUT
-          cat "$SUMMARY_FILE" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          rm -f "$SUMMARY_FILE"
+          {
+            echo "description<<EOF"
+            echo "$DESC"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
 
       # [Discord 알림]
       - name: Send PR notification to Discord
@@ -162,10 +162,12 @@ jobs:
           echo "Webhook URL (first 50 chars): ${DISCORD_WEBHOOK:0:50}"
           echo "Status: $STATUS_EMOJI, Color: $COLOR"
 
-          # Diff 요약 가져오기
-          DIFF_SUMMARY="${{ steps.diff_summary.outputs.summary }}"
+          # 코드 변경 통계
+          ADDITIONS="${{ steps.code_stats.outputs.additions }}"
+          DELETIONS="${{ steps.code_stats.outputs.deletions }}"
+          CHANGE_DESC="${{ steps.change_desc.outputs.description }}"
 
-          # JSON payload를 jq로 생성 (안전한 방법)
+          # 메인 알림 JSON payload
           PAYLOAD=$(jq -n \
             --arg actor "${{ github.actor }}" \
             --arg icon "https://github.com/${{ github.actor }}.png" \
@@ -175,10 +177,11 @@ jobs:
             --arg head "${{ github.event.pull_request.head.ref }}" \
             --argjson color "$COLOR" \
             --arg filecount "$FILE_COUNT" \
+            --arg additions "$ADDITIONS" \
+            --arg deletions "$DELETIONS" \
             --arg lint "$LINT_STATUS" \
             --arg build "$BUILD_STATUS" \
-            --arg files "$FILES_LIST$FILES_EXTRA" \
-            --arg diff "$DIFF_SUMMARY" \
+            --arg changes "$CHANGE_DESC" \
             --arg url "${{ github.event.pull_request.html_url }}" \
             --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
             '{
@@ -193,8 +196,8 @@ jobs:
                 fields: [
                   {
                     name: "📊 Changes",
-                    value: "\($filecount) files changed",
-                    inline: true
+                    value: "\($filecount) files • +\($additions) -\($deletions)",
+                    inline: false
                   },
                   {
                     name: "Lint",
@@ -207,12 +210,8 @@ jobs:
                     inline: true
                   },
                   {
-                    name: "📝 Changed Files",
-                    value: $files
-                  },
-                  {
-                    name: "🔍 Code Changes",
-                    value: $diff
+                    name: "📝 Modified Files",
+                    value: $changes
                   }
                 ],
                 footer: {
@@ -223,6 +222,7 @@ jobs:
               }]
             }')
 
+          echo "Sending main notification to Discord..."
           HTTP_CODE=$(curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -o /tmp/discord_response.txt \
@@ -237,9 +237,105 @@ jobs:
             cat /tmp/discord_response.txt
           fi
 
-          if [ "$HTTP_CODE" = "204" ] || [ "$HTTP_CODE" = "200" ]; then
-            echo "✅ Successfully sent notification to Discord!"
-          else
+          if [ "$HTTP_CODE" != "204" ] && [ "$HTTP_CODE" != "200" ]; then
             echo "❌ Error: Discord webhook returned status code $HTTP_CODE"
             exit 1
           fi
+
+          echo "✅ Main notification sent!"
+
+      # [파일별 diff 전송]
+      - name: Send file diffs to Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          python3 << 'PYTHON_SCRIPT'
+          import subprocess
+          import os
+          import json
+          import requests
+          import time
+
+          webhook_url = os.environ['DISCORD_WEBHOOK']
+          base_sha = "${{ github.event.pull_request.base.sha }}"
+          head_sha = "${{ github.event.pull_request.head.sha }}"
+          pr_title = "${{ github.event.pull_request.title }}"
+
+          # 변경된 파일 목록
+          files_cmd = f"git diff --name-only {base_sha} {head_sha} -- apps/web-playground"
+          files_result = subprocess.run(files_cmd, shell=True, capture_output=True, text=True)
+          files = [f for f in files_result.stdout.strip().split('\n') if f]
+
+          print(f"Found {len(files)} changed files")
+
+          # 최대 5개 파일까지만 전송
+          for idx, file in enumerate(files[:5]):
+              filename = os.path.basename(file)
+
+              # 파일의 diff 가져오기
+              diff_cmd = f"git diff {base_sha} {head_sha} -- {file}"
+              diff_result = subprocess.run(diff_cmd, shell=True, capture_output=True, text=True)
+              diff_lines = diff_result.stdout.split('\n')
+
+              # 실제 변경 내용만 추출 (@@, +, - 라인)
+              content_lines = []
+              in_hunk = False
+              for line in diff_lines:
+                  if line.startswith('@@'):
+                      in_hunk = True
+                      content_lines.append(line)
+                  elif in_hunk and (line.startswith('+') or line.startswith('-') or line.startswith(' ')):
+                      if not line.startswith('+++') and not line.startswith('---'):
+                          content_lines.append(line)
+
+                  # 최대 30줄까지만
+                  if len(content_lines) >= 30:
+                      content_lines.append("... (truncated)")
+                      break
+
+              diff_content = '\n'.join(content_lines)
+
+              # Discord 제한 (2000자)
+              if len(diff_content) > 1900:
+                  diff_content = diff_content[:1850] + "\n... (truncated)"
+
+              # Discord embed 생성
+              embed = {
+                  "embeds": [{
+                      "title": f"📄 {filename}",
+                      "description": f"```diff\n{diff_content}\n```",
+                      "color": 5814783,  # 회색
+                      "footer": {
+                          "text": f"File {idx+1}/{min(len(files), 5)} • {pr_title}"
+                      }
+                  }]
+              }
+
+              # Discord로 전송
+              response = requests.post(webhook_url, json=embed)
+
+              if response.status_code in [200, 204]:
+                  print(f"✅ Sent diff for {filename}")
+              else:
+                  print(f"❌ Failed to send diff for {filename}: {response.status_code}")
+                  print(response.text)
+
+              # Discord rate limit 방지 (1초 대기)
+              time.sleep(1)
+
+          if len(files) > 5:
+              # 남은 파일 개수 알림
+              remaining = len(files) - 5
+              summary_embed = {
+                  "embeds": [{
+                      "description": f"*...and {remaining} more files changed. Check the PR for full diff.*",
+                      "color": 7506394,  # 연한 회색
+                      "url": "${{ github.event.pull_request.html_url }}"
+                  }]
+              }
+              requests.post(webhook_url, json=summary_embed)
+
+          print(f"✅ All file diffs sent!")
+
+          PYTHON_SCRIPT
