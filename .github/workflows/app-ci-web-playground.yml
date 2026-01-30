@@ -2,8 +2,8 @@ name: Web Playground Discord CI
 
 on:
   push:
-    paths: ["apps/web-playground/**"]
-    branches: ["feature/discord"]
+    paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
+    branches: ["feature/**""]
 
 env:
   NODE_VERSION: 22
