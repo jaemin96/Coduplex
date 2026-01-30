@@ -73,10 +73,8 @@ jobs:
       - name: Get code diff summary
         id: diff_summary
         run: |
-          # 변경된 코드 diff (처음 50줄만)
           DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | head -50)
           
-          # Discord 메시지용으로 포맷팅
           echo "diff<<EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -87,27 +85,31 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          # 린트/빌드 결과에 따라 색상 결정
           if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
-            COLOR=15158332  # 빨강
+            COLOR=15158332
             STATUS_EMOJI="⚠️"
           else
-            COLOR=3447003   # 파랑 (PR은 노란색 대신 파랑)
+            COLOR=3447003
             STATUS_EMOJI="🔍"
           fi
 
-          # PR 제목 (특수문자 이스케이프)
-          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
-          
-          # 변경 파일 목록 (Discord 코드블록 포맷)
-          FILES_LIST=$(echo "${{ steps.changed_files.outputs.files }}" | sed 's/^/• /')
-          
-          # 파일이 10개 넘으면 메시지 추가
-          if [ ${{ steps.changed_files.outputs.count }} -gt 10 ]; then
-            FILES_LIST="$FILES_LIST\n... and $((${{ steps.changed_files.outputs.count }} - 10)) more files"
-          fi
+          LINT_STATUS="${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+          BUILD_STATUS="${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
 
-          curl -X POST $DISCORD_WEBHOOK \
+          # PR 제목 (JSON용 이스케이프)
+          PR_TITLE=$(echo '${{ github.event.pull_request.title }}' | jq -Rs .)
+
+          # 변경 파일 목록 (간단하게)
+          FILE_COUNT="${{ steps.changed_files.outputs.count }}"
+
+          # 변경 파일을 간단한 텍스트로
+          FILES_PREVIEW=$(echo "${{ steps.changed_files.outputs.files }}" | head -5 | sed 's/^/• /')
+          if [ "$FILE_COUNT" -gt 5 ]; then
+            FILES_PREVIEW="$FILES_PREVIEW\n... and $(($FILE_COUNT - 5)) more files"
+          fi
+          FILES_VALUE=$(echo -e "$FILES_PREVIEW" | jq -Rs .)
+
+          curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "{
               \"embeds\": [{
@@ -116,27 +118,27 @@ jobs:
                   \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
                 },
                 \"title\": \"$STATUS_EMOJI Pull Request: $PR_TITLE\",
-                \"description\": \"**Target Branch:** \\\`${{ github.event.pull_request.base.ref }}\\\` ← \\\`${{ github.event.pull_request.head.ref }}\\\`\",
+                \"description\": \"**Target Branch:** \`${{ github.event.pull_request.base.ref }}\` ← \`${{ github.event.pull_request.head.ref }}\`\",
                 \"color\": $COLOR,
                 \"fields\": [
                   {
                     \"name\": \"📊 Changes\",
-                    \"value\": \"${{ steps.changed_files.outputs.count }} files changed\",
+                    \"value\": \"$FILE_COUNT files changed\",
                     \"inline\": true
                   },
                   {
                     \"name\": \"Lint\",
-                    \"value\": \"${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"value\": \"$LINT_STATUS\",
                     \"inline\": true
                   },
                   {
                     \"name\": \"Build\",
-                    \"value\": \"${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"value\": \"$BUILD_STATUS\",
                     \"inline\": true
                   },
                   {
                     \"name\": \"📝 Changed Files\",
-                    \"value\": \"$FILES_LIST\"
+                    \"value\": $FILES_VALUE
                   }
                 ],
                 \"footer\": {
@@ -145,4 +147,4 @@ jobs:
                 \"url\": \"${{ github.event.pull_request.html_url }}\",
                 \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
               }]
-            }"
+            }" || echo "Discord webhook failed with exit code $?"
