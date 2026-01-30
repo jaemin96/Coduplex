@@ -2,10 +2,8 @@ name: Web Playground Discord CI
 
 on:
   push:
-    branches: ['feature/discord']
-    paths:
-      - 'apps/web-playground/**'
-      # - 'packages/**' # 의존성 있다면 ? 
+    paths: ["apps/web-playground/**"]
+    branches: ["feature/discord"]
 
 env:
   NODE_VERSION: 22
