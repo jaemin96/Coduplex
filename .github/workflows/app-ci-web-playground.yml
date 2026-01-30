@@ -3,7 +3,7 @@ name: Web Playground Discord CI
 on:
   push:
     paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
-    branches: ["feature/**""]
+    branches: ["feature/**"]
 
 env:
   NODE_VERSION: 22
