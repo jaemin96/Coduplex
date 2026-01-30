@@ -49,23 +49,23 @@ jobs:
         run: |
           # PR의 base와 head 비교
           CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^apps/web-playground')
-          
+
           # 파일 개수 세기
           FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
-          
+
           # 처음 10개 파일만 (너무 많으면 줄이기)
           DISPLAY_FILES=$(echo "$CHANGED_FILES" | head -10)
-          
+
           # 각 파일의 변경 통계 (추가/삭제 라인)
           STATS=$(git diff --stat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground)
-          
+
           # 출력 변수 설정 (개행 처리)
           echo "files<<EOF" >> $GITHUB_OUTPUT
           echo "$DISPLAY_FILES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          
+
           echo "count=$FILE_COUNT" >> $GITHUB_OUTPUT
-          
+
           echo "stats<<EOF" >> $GITHUB_OUTPUT
           echo "$STATS" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -75,7 +75,7 @@ jobs:
         id: diff_summary
         run: |
           DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | head -50)
-          
+
           echo "diff<<EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -86,6 +86,7 @@ jobs:
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
+          # 상태 체크
           if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
             COLOR=15158332
             STATUS_EMOJI="⚠️"
@@ -94,68 +95,93 @@ jobs:
             STATUS_EMOJI="🔍"
           fi
 
-          LINT_STATUS="${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
-          BUILD_STATUS="${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+          # Lint/Build 상태 설정
+          if [ "${{ steps.lint.outcome }}" == "success" ]; then
+            LINT_STATUS="✅ Passed"
+          else
+            LINT_STATUS="❌ Failed"
+          fi
 
-          # PR 제목 (JSON용 이스케이프)
-          PR_TITLE=$(echo '${{ github.event.pull_request.title }}' | jq -Rs .)
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            BUILD_STATUS="✅ Passed"
+          else
+            BUILD_STATUS="❌ Failed"
+          fi
 
           # 변경 파일 목록 (간단하게)
           FILE_COUNT="${{ steps.changed_files.outputs.count }}"
 
-          # 변경 파일을 간단한 텍스트로
-          FILES_PREVIEW=$(echo "${{ steps.changed_files.outputs.files }}" | head -5 | sed 's/^/• /')
+          # 변경 파일을 간단한 텍스트로 (jq를 사용하지 않고 직접 처리)
+          FILES_LIST=$(echo "${{ steps.changed_files.outputs.files }}" | head -5 | sed 's/^/• /')
           if [ "$FILE_COUNT" -gt 5 ]; then
-            FILES_PREVIEW="$FILES_PREVIEW\n... and $(($FILE_COUNT - 5)) more files"
+            FILES_EXTRA="\n... and $(($FILE_COUNT - 5)) more files"
+          else
+            FILES_EXTRA=""
           fi
-          FILES_VALUE=$(echo -e "$FILES_PREVIEW" | jq -Rs .)
 
           echo "Sending to Discord webhook..."
           echo "Webhook URL (first 50 chars): ${DISCORD_WEBHOOK:0:50}"
           echo "Status: $STATUS_EMOJI, Color: $COLOR"
+
+          # JSON payload를 jq로 생성 (안전한 방법)
+          PAYLOAD=$(jq -n \
+            --arg actor "${{ github.actor }}" \
+            --arg icon "https://github.com/${{ github.actor }}.png" \
+            --arg emoji "$STATUS_EMOJI" \
+            --arg title "${{ github.event.pull_request.title }}" \
+            --arg base "${{ github.event.pull_request.base.ref }}" \
+            --arg head "${{ github.event.pull_request.head.ref }}" \
+            --argjson color "$COLOR" \
+            --arg filecount "$FILE_COUNT" \
+            --arg lint "$LINT_STATUS" \
+            --arg build "$BUILD_STATUS" \
+            --arg files "$FILES_LIST$FILES_EXTRA" \
+            --arg url "${{ github.event.pull_request.html_url }}" \
+            --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
+            '{
+              embeds: [{
+                author: {
+                  name: $actor,
+                  icon_url: $icon
+                },
+                title: "\($emoji) Pull Request: \($title)",
+                description: "**Target Branch:** `\($base)` ← `\($head)`",
+                color: $color,
+                fields: [
+                  {
+                    name: "📊 Changes",
+                    value: "\($filecount) files changed",
+                    inline: true
+                  },
+                  {
+                    name: "Lint",
+                    value: $lint,
+                    inline: true
+                  },
+                  {
+                    name: "Build",
+                    value: $build,
+                    inline: true
+                  },
+                  {
+                    name: "📝 Changed Files",
+                    value: $files
+                  }
+                ],
+                footer: {
+                  text: "Web Playground PR Review"
+                },
+                url: $url,
+                timestamp: $timestamp
+              }]
+            }')
 
           HTTP_CODE=$(curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -o /tmp/discord_response.txt \
             -w "%{http_code}" \
             -s \
-            -d "{
-              \"embeds\": [{
-                \"author\": {
-                  \"name\": \"${{ github.actor }}\",
-                  \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
-                },
-                \"title\": \"$STATUS_EMOJI Pull Request: $PR_TITLE\",
-                \"description\": \"**Target Branch:** \`${{ github.event.pull_request.base.ref }}\` ← \`${{ github.event.pull_request.head.ref }}\`\",
-                \"color\": $COLOR,
-                \"fields\": [
-                  {
-                    \"name\": \"📊 Changes\",
-                    \"value\": \"$FILE_COUNT files changed\",
-                    \"inline\": true
-                  },
-                  {
-                    \"name\": \"Lint\",
-                    \"value\": \"$LINT_STATUS\",
-                    \"inline\": true
-                  },
-                  {
-                    \"name\": \"Build\",
-                    \"value\": \"$BUILD_STATUS\",
-                    \"inline\": true
-                  },
-                  {
-                    \"name\": \"📝 Changed Files\",
-                    \"value\": $FILES_VALUE
-                  }
-                ],
-                \"footer\": {
-                  \"text\": \"Web Playground PR Review\"
-                },
-                \"url\": \"${{ github.event.pull_request.html_url }}\",
-                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
-              }]
-            }")
+            -d "$PAYLOAD")
 
           echo "Discord API Response Code: $HTTP_CODE"
 
