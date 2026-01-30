@@ -1,0 +1,107 @@
+name: Web Playground Discord CI
+
+on:
+  push:
+    paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
+    branches: ["feature/**"]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 10
+
+jobs:
+  build-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # [Run Lint]
+      - name: Lint web-playground
+        id: lint
+        run: pnpm lint
+        working-directory: apps/web-playground
+        continue-on-error: true
+
+      # [Run Build]
+      - name: Build web-playground
+        id: build
+        run: pnpm build
+        working-directory: apps/web-playground
+        continue-on-error: true
+
+      # [Discord Notification]
+      - name: Send Discord Notification
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
+            STATUS="❌ Failed"
+            COLOR=15158332
+          else
+            STATUS="✅ Success"
+            COLOR=3066993
+          fi
+
+          LINT_STATUS="${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+          BUILD_STATUS="${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+          COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1 | cut -c 1-100)
+
+          echo "Sending to Discord webhook..."
+          echo "Webhook URL (first 50 chars): ${DISCORD_WEBHOOK:0:50}"
+          echo "Status: $STATUS, Color: $COLOR"
+
+          RESPONSE=$(curl -X POST "$DISCORD_WEBHOOK" \
+            -H "Content-Type: application/json" \
+            -w "\nHTTP_CODE:%{http_code}" \
+            -d "{
+              \"embeds\": [{
+                \"author\": {
+                  \"name\": \"${{ github.actor }}\",
+                  \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
+                },
+                \"title\": \"$STATUS Web Playground CI\",
+                \"description\": \"**Branch:** \`${{ github.ref_name }}\`\n**Commit:** $COMMIT_MSG\",
+                \"color\": $COLOR,
+                \"fields\": [
+                  {
+                    \"name\": \"Lint\",
+                    \"value\": \"$LINT_STATUS\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Build\",
+                    \"value\": \"$BUILD_STATUS\",
+                    \"inline\": true
+                  }
+                ],
+                \"footer\": {
+                  \"text\": \"Turborepo • Web Playground\"
+                },
+                \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
+              }]
+            }")
+
+          HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
+          echo "Discord API Response Code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "204" ] && [ "$HTTP_CODE" != "200" ]; then
+            echo "Error: Discord webhook returned non-success status code"
+            echo "$RESPONSE"
+            exit 1
+          else
+            echo "Successfully sent notification to Discord!"
+          fi
