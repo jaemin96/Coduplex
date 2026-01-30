@@ -74,39 +74,50 @@ jobs:
       - name: Get code diff summary
         id: diff_summary
         run: |
-          # 주요 변경 사항 추출 (파일별로 context 포함)
-          DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground)
-
           # 변경된 파일 목록 가져오기
           CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground)
 
-          # 각 파일별로 간단한 diff 생성 (최대 3개 파일, 각 파일당 20줄)
-          SUMMARY=""
+          # 임시 파일에 diff 요약 작성
+          SUMMARY_FILE=$(mktemp)
+
           COUNT=0
           while IFS= read -r file; do
-            if [ $COUNT -ge 3 ]; then
+            if [ $COUNT -ge 2 ]; then
               break
             fi
 
-            # 파일명
-            SUMMARY="${SUMMARY}\n\n**${file}**\n\`\`\`diff\n"
+            if [ -n "$file" ]; then
+              # 파일명 추가
+              echo "" >> "$SUMMARY_FILE"
+              echo "**${file}**" >> "$SUMMARY_FILE"
+              echo '```diff' >> "$SUMMARY_FILE"
 
-            # 해당 파일의 diff (20줄 제한)
-            FILE_DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "$file" | head -20)
-            SUMMARY="${SUMMARY}${FILE_DIFF}\n\`\`\`"
+              # 해당 파일의 diff (15줄 제한)
+              git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "$file" | head -15 >> "$SUMMARY_FILE"
 
-            COUNT=$((COUNT + 1))
+              echo '```' >> "$SUMMARY_FILE"
+
+              COUNT=$((COUNT + 1))
+            fi
           done <<< "$CHANGED_FILES"
 
-          # 총 문자 수 제한 (Discord embed field는 1024자 제한)
-          # 너무 길면 잘라내기
-          if [ ${#SUMMARY} -gt 900 ]; then
-            SUMMARY="${SUMMARY:0:900}...\n\`\`\`\n*Diff too long, check PR for full changes*"
+          # 파일 크기 체크 (Discord embed field는 1024자 제한)
+          FILE_SIZE=$(wc -c < "$SUMMARY_FILE")
+          if [ $FILE_SIZE -gt 900 ]; then
+            # 900자로 자르고 메시지 추가
+            head -c 850 "$SUMMARY_FILE" > "${SUMMARY_FILE}.tmp"
+            echo '```' >> "${SUMMARY_FILE}.tmp"
+            echo "" >> "${SUMMARY_FILE}.tmp"
+            echo "*Diff too long, check PR for full changes*" >> "${SUMMARY_FILE}.tmp"
+            mv "${SUMMARY_FILE}.tmp" "$SUMMARY_FILE"
           fi
 
+          # GITHUB_OUTPUT에 안전하게 저장
           echo "summary<<EOF" >> $GITHUB_OUTPUT
-          echo -e "$SUMMARY" >> $GITHUB_OUTPUT
+          cat "$SUMMARY_FILE" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+
+          rm -f "$SUMMARY_FILE"
 
       # [Discord 알림]
       - name: Send PR notification to Discord
