@@ -1,0 +1,39 @@
+  name: Web Playground Discord CI
+
+  on:
+    push: 
+      branches: ['feature/discord']
+    paths:
+      - 'apps/web-playground/**'
+      - 'packages/**' # 의존성 있다면 ? 
+
+  env:
+    NODE_VERSION: 22
+    PNPM_VERSION: 10
+
+  jobs:
+    build-and-notify:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+
+        - uses: actions/setup-node@v4
+          with:
+            node-version: ${{ env.NODE_VERSION }}        
+
+        - uses: pnpm/action-setup@v2
+          with:
+            version: ${{ env.PNPM_VERSION }}
+
+        - name: Install dependencies
+          run: pnpm install --frozen-lockfile    
+
+        # [Run Lint]
+        - name: Lint web-playground
+          run: pnpm lint
+          working-directory: apps/web-playground
+
+        # [Run Build] 
+        - name: Build web-playground
+          run: pnpm build
+          working-directory: apps/web-playground
