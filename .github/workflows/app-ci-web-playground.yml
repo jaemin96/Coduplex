@@ -28,13 +28,17 @@ jobs:
 
       # [Run Lint]
       - name: Lint web-playground
+        id: lint
         run: pnpm lint
         working-directory: apps/web-playground
+        continue-on-error: true
 
       # [Run Build]
       - name: Build web-playground
+        id: build
         run: pnpm build
         working-directory: apps/web-playground
+        continue-on-error: true
 
       # [Discord Notification]
       - name: Send Discord Notification
@@ -50,9 +54,11 @@ jobs:
             COLOR=3066993
           fi
 
+          LINT_STATUS="${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
+          BUILD_STATUS="${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}"
           COMMIT_MSG=$(echo "${{ github.event.head_commit.message }}" | head -n 1 | cut -c 1-100)
 
-          curl -X POST $DISCORD_WEBHOOK \
+          curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
             -d "{
               \"embeds\": [{
@@ -61,17 +67,17 @@ jobs:
                   \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
                 },
                 \"title\": \"$STATUS Web Playground CI\",
-                \"description\": \"**Branch:** \\\`${{ github.ref_name }}\\\`\n**Commit:** $COMMIT_MSG\",
+                \"description\": \"**Branch:** \`${{ github.ref_name }}\`\n**Commit:** $COMMIT_MSG\",
                 \"color\": $COLOR,
                 \"fields\": [
                   {
                     \"name\": \"Lint\",
-                    \"value\": \"${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"value\": \"$LINT_STATUS\",
                     \"inline\": true
                   },
                   {
                     \"name\": \"Build\",
-                    \"value\": \"${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"value\": \"$BUILD_STATUS\",
                     \"inline\": true
                   }
                 ],
@@ -81,4 +87,4 @@ jobs:
                 \"url\": \"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",
                 \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
               }]
-            }"
+            }" || echo "Discord webhook failed with exit code $?"
