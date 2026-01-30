@@ -177,9 +177,11 @@ jobs:
           # 코드 변경 통계
           ADDITIONS="${{ steps.code_stats.outputs.additions }}"
           DELETIONS="${{ steps.code_stats.outputs.deletions }}"
-          CHANGE_DESC="${{ steps.change_desc.outputs.description }}"
 
-          # 메인 알림 JSON payload
+          # CHANGE_DESC를 임시 파일로 저장 (백틱 문제 방지)
+          echo '${{ steps.change_desc.outputs.description }}' > /tmp/change_desc.txt
+
+          # 메인 알림 JSON payload (rawfile로 안전하게 읽기)
           PAYLOAD=$(jq -n \
             --arg actor "${{ github.actor }}" \
             --arg icon "https://github.com/${{ github.actor }}.png" \
@@ -193,7 +195,7 @@ jobs:
             --arg deletions "$DELETIONS" \
             --arg lint "$LINT_STATUS" \
             --arg build "$BUILD_STATUS" \
-            --arg changes "$CHANGE_DESC" \
+            --rawfile changes /tmp/change_desc.txt \
             --arg url "${{ github.event.pull_request.html_url }}" \
             --arg timestamp "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)" \
             '{
