@@ -4,6 +4,7 @@ on:
   pull_request:
     type: [opened, synchronize, reopened]
     paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
+  workflow_dispatch:
 
 env:
   NODE_VERSION: 22
@@ -109,8 +110,13 @@ jobs:
           fi
           FILES_VALUE=$(echo -e "$FILES_PREVIEW" | jq -Rs .)
 
-          curl -X POST "$DISCORD_WEBHOOK" \
+          echo "Sending to Discord webhook..."
+          echo "Webhook URL (first 50 chars): ${DISCORD_WEBHOOK:0:50}"
+          echo "Status: $STATUS_EMOJI, Color: $COLOR"
+
+          RESPONSE=$(curl -X POST "$DISCORD_WEBHOOK" \
             -H "Content-Type: application/json" \
+            -w "\nHTTP_CODE:%{http_code}" \
             -d "{
               \"embeds\": [{
                 \"author\": {
@@ -147,4 +153,15 @@ jobs:
                 \"url\": \"${{ github.event.pull_request.html_url }}\",
                 \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
               }]
-            }" || echo "Discord webhook failed with exit code $?"
+            }")
+
+          HTTP_CODE=$(echo "$RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
+          echo "Discord API Response Code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "204" ] && [ "$HTTP_CODE" != "200" ]; then
+            echo "Error: Discord webhook returned non-success status code"
+            echo "$RESPONSE"
+            exit 1
+          else
+            echo "Successfully sent notification to Discord!"
+          fi
