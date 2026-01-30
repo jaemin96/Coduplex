@@ -89,35 +89,47 @@ jobs:
       - name: Generate change description
         id: change_desc
         run: |
-          # 변경된 파일 목록 (최대 5개)
-          FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | head -5)
+          python3 << 'PYTHON_SCRIPT'
+          import subprocess
+          import os
 
-          DESC=""
-          while IFS= read -r file; do
-            if [ -n "$file" ]; then
+          base_sha = "${{ github.event.pull_request.base.sha }}"
+          head_sha = "${{ github.event.pull_request.head.sha }}"
+
+          # 변경된 파일 목록
+          files_cmd = f"git diff --name-only {base_sha} {head_sha} -- apps/web-playground"
+          files_result = subprocess.run(files_cmd, shell=True, capture_output=True, text=True)
+          files = [f for f in files_result.stdout.strip().split('\n') if f]
+
+          desc_lines = []
+
+          # 최대 5개 파일
+          for file in files[:5]:
               # 파일별 변경 통계
-              FILE_STAT=$(git diff --numstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- "$file")
-              ADDED=$(echo "$FILE_STAT" | awk '{print $1}')
-              REMOVED=$(echo "$FILE_STAT" | awk '{print $2}')
+              numstat_cmd = f"git diff --numstat {base_sha} {head_sha} -- {file}"
+              numstat_result = subprocess.run(numstat_cmd, shell=True, capture_output=True, text=True)
+              parts = numstat_result.stdout.strip().split('\t')
 
-              # 파일명만 (경로 제거)
-              FILENAME=$(basename "$file")
+              if len(parts) >= 2:
+                  added = parts[0]
+                  removed = parts[1]
+                  filename = os.path.basename(file)
 
-              DESC="${DESC}• \`${FILENAME}\` (+${ADDED} -${REMOVED})"$'\n'
-            fi
-          done <<< "$FILES"
+                  desc_lines.append(f"• `{filename}` (+{added} -{removed})")
 
-          # 총 파일 수 체크
-          TOTAL_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | wc -l)
-          if [ $TOTAL_FILES -gt 5 ]; then
-            DESC="${DESC}• ... and $((TOTAL_FILES - 5)) more files"
-          fi
+          # 남은 파일
+          if len(files) > 5:
+              desc_lines.append(f"• ... and {len(files) - 5} more files")
 
-          {
-            echo "description<<EOF"
-            echo "$DESC"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          description = '\n'.join(desc_lines)
+
+          # GITHUB_OUTPUT에 저장
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write("description<<EOF\n")
+              f.write(description)
+              f.write("\nEOF\n")
+
+          PYTHON_SCRIPT
 
       # [Discord 알림]
       - name: Send PR notification to Discord
