@@ -1,0 +1,148 @@
+name: PR Review Notification
+
+on:
+  pull_request:
+    type: [opened, synchronize, reopened]
+    paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
+
+env:
+  NODE_VERSION: 22
+  PNPM_VERSION: 10
+
+jobs:
+  pr-check-and-notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # 전체 히스토리 가져오기 (diff 비교용)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # [Lint]
+      - name: Lint web-playground
+        id: lint
+        run: pnpm lint
+        working-directory: apps/web-playground
+        continue-on-error: true
+
+      # [Build]
+      - name: Build web-playground
+        id: build
+        run: pnpm build
+        working-directory: apps/web-playground
+        continue-on-error: true
+
+      # [변경된 파일 목록 가져오기]
+      - name: Get changed files
+        id: changed_files
+        run: |
+          # PR의 base와 head 비교
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep '^apps/web-playground')
+          
+          # 파일 개수 세기
+          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          
+          # 처음 10개 파일만 (너무 많으면 줄이기)
+          DISPLAY_FILES=$(echo "$CHANGED_FILES" | head -10)
+          
+          # 각 파일의 변경 통계 (추가/삭제 라인)
+          STATS=$(git diff --stat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground)
+          
+          # 출력 변수 설정 (개행 처리)
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$DISPLAY_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "count=$FILE_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "stats<<EOF" >> $GITHUB_OUTPUT
+          echo "$STATS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # [간단한 diff 내용 추출]
+      - name: Get code diff summary
+        id: diff_summary
+        run: |
+          # 변경된 코드 diff (처음 50줄만)
+          DIFF=$(git diff ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- apps/web-playground | head -50)
+          
+          # Discord 메시지용으로 포맷팅
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      # [Discord 알림]
+      - name: Send PR notification to Discord
+        if: always()
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          # 린트/빌드 결과에 따라 색상 결정
+          if [ "${{ steps.lint.outcome }}" == "failure" ] || [ "${{ steps.build.outcome }}" == "failure" ]; then
+            COLOR=15158332  # 빨강
+            STATUS_EMOJI="⚠️"
+          else
+            COLOR=3447003   # 파랑 (PR은 노란색 대신 파랑)
+            STATUS_EMOJI="🔍"
+          fi
+
+          # PR 제목 (특수문자 이스케이프)
+          PR_TITLE=$(echo "${{ github.event.pull_request.title }}" | sed 's/"/\\"/g')
+          
+          # 변경 파일 목록 (Discord 코드블록 포맷)
+          FILES_LIST=$(echo "${{ steps.changed_files.outputs.files }}" | sed 's/^/• /')
+          
+          # 파일이 10개 넘으면 메시지 추가
+          if [ ${{ steps.changed_files.outputs.count }} -gt 10 ]; then
+            FILES_LIST="$FILES_LIST\n... and $((${{ steps.changed_files.outputs.count }} - 10)) more files"
+          fi
+
+          curl -X POST $DISCORD_WEBHOOK \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"embeds\": [{
+                \"author\": {
+                  \"name\": \"${{ github.actor }}\",
+                  \"icon_url\": \"https://github.com/${{ github.actor }}.png\"
+                },
+                \"title\": \"$STATUS_EMOJI Pull Request: $PR_TITLE\",
+                \"description\": \"**Target Branch:** \\\`${{ github.event.pull_request.base.ref }}\\\` ← \\\`${{ github.event.pull_request.head.ref }}\\\`\",
+                \"color\": $COLOR,
+                \"fields\": [
+                  {
+                    \"name\": \"📊 Changes\",
+                    \"value\": \"${{ steps.changed_files.outputs.count }} files changed\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Lint\",
+                    \"value\": \"${{ steps.lint.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"Build\",
+                    \"value\": \"${{ steps.build.outcome == 'success' && '✅ Passed' || '❌ Failed' }}\",
+                    \"inline\": true
+                  },
+                  {
+                    \"name\": \"📝 Changed Files\",
+                    \"value\": \"$FILES_LIST\"
+                  }
+                ],
+                \"footer\": {
+                  \"text\": \"Web Playground PR Review\"
+                },
+                \"url\": \"${{ github.event.pull_request.html_url }}\",
+                \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
+              }]
+            }"
