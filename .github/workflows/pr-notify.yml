@@ -2,9 +2,8 @@ name: PR Review Notification
 
 on:
   pull_request:
-    type: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
     paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
-  workflow_dispatch:
 
 env:
   NODE_VERSION: 24
