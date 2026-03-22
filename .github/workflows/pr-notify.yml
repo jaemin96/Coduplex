@@ -2,13 +2,11 @@ name: PR Review Notification
 
 on:
   pull_request:
-    type: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
     paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
-  workflow_dispatch:
 
 env:
-  NODE_VERSION: 22
-  PNPM_VERSION: 10
+  NODE_VERSION: 24
 
 jobs:
   pr-check-and-notify:
@@ -22,9 +20,9 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - uses: pnpm/action-setup@v2
+      - uses: pnpm/action-setup@v4
         with:
-          version: ${{ env.PNPM_VERSION }}
+          version: 10
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
