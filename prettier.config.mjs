@@ -1,12 +1,3 @@
-/** @type {import('prettier').Config} */
+import prettierConfig from "@cx/prettier-config";
 
-export default {
-  semi: true,
-  singleQuote: false,
-  trailingComma: "all",
-  printWidth: 120,
-  tabWidth: 2,
-  bracketSpacing: true,
-  arrowParens: "always",
-  endOfLine: "auto",
-};
+export default prettierConfig;

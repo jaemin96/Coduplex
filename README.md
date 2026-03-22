@@ -2,6 +2,8 @@
 
 [![Main Release Flow](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/release_main.yml)
 
+![My Banner](./assets/images/coduplex_banner1.jpg)
+
 All projects, all learning, all in one place
 
 ---
@@ -17,3 +19,4 @@ All projects, all learning, all in one place
 ![UI Design System](https://img.shields.io/badge/UI%20Design%20System-111111?style=for-the-badge&logo=storybook&logoColor=FF4785)
 ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
+

@@ -1,0 +1,13 @@
+{
+  "files": [],
+  "references": [{ "path": "./tsconfig.node.json" }, { "path": "./tsconfig.app.json" }],
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@weaw/design": ["../../packages/weaw-design/src"]
+    }
+  },
+  "include": ["src/**/*.{ts,tsx,d.ts}"],
+  "exclude": ["node_modules", "dist"]
+}
