@@ -1,10 +1,11 @@
-name: Package CI
+name: Package CI (Disabled)
 on:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       package:
         required: true
         type: string
+        description: "Package name to run CI for"
 
 env:
   NODE_ENV: production

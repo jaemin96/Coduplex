@@ -1,9 +1,6 @@
-name: Web Playground Discord CI
+name: Web Playground Discord CI (Disabled)
 
 on:
-  push:
-    paths: ["apps/web-playground/**", "pnpm-lock.yaml"]
-    branches: ["feature/**"]
   workflow_dispatch:
 
 env:

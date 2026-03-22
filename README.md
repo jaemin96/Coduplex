@@ -20,12 +20,3 @@ All projects, all learning, all in one place
 ![SCSS](https://img.shields.io/badge/SCSS-CC6699?style=for-the-badge&logo=sass&logoColor=white)
 ![Storybook](https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=storybook&logoColor=white)
 
-## Packages
-
-[![Package - UI Design System](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-ui.yml)
-<br/>
-
-[![Package - Web Client](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-webClient.yml)
-<br/>
-
-[![Package - Dawntech](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml/badge.svg)](https://github.com/jaemin96/Coduplex/actions/workflows/ci-dawntech.yml)
